@@ -1,2 +1,2 @@
 # Encrypt-Something
-This program can encrypt files and password stuff...
+Text based encryption program(VERY limited...) has support for images, text files, and login/password
