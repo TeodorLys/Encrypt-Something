@@ -94,7 +94,7 @@ void File_Handler::Get_Information() {
 	buff.comment = sbuff;
 	commentfound = true;
    }
-   else if (s[0] == 'c' && s[1] == ':') {
+   else if (s[0] == 'u' && s[1] == ':') {
 	sbuff = s;
 	sbuff.erase(0, 2);
 	buff.username = sbuff;
