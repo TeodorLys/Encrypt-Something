@@ -10,10 +10,13 @@
 Users::Users() {}
 
 void Users::New_User() {
+ //Uses a default name, cant really add a new user... for now.
  userPath = Shared_String::current_Path + "USER1.usr";
  printf("***NEW LOGIN***\n");
- std::string user/* = new std::string*/;
- std::string pass /*= new std::string*/;
+
+ std::string user;
+ std::string pass;
+ 
  printf("Username: ");
  std::getline(std::cin, user);
  printf("Password: ");
@@ -23,19 +26,19 @@ void Users::New_User() {
 
  userHash = std::hash<std::string>{}(user);
  passHash = std::hash<std::string>{}(pass);
- //delete user;
- //delete pass;
 
+ //Uses both the user and password(combined) as the encryption password.
  Encode_String::es().set_Pass(std::to_string(static_cast<unsigned int>(userHash + passHash)));
  Log_Warning("%i, %i", static_cast<unsigned int>(userHash), static_cast<unsigned int>(passHash));
  Log_Warning("%s", std::to_string(static_cast<unsigned int>(userHash + passHash)));
  file.open(userPath, std::fstream::out);
 
+ //Only saves the hash of the user.
  std::string push_Buff = Encode_String::es().Encrypt_AES(std::to_string(static_cast<unsigned int>(userHash))) + "\n";
 
  file << push_Buff;
  userCheck = push_Buff;
-
+ //Only saves the hash of the password.
  push_Buff = Encode_String::es().Encrypt_AES(std::to_string(static_cast<unsigned int>(passHash))) + "\n";
  passCheck = push_Buff;
 

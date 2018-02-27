@@ -10,17 +10,8 @@
 
 class Encode_String {
 private:
- CryptoPP::AutoSeededRandomPool rnd;
-
-
  std::string pass, iv;
  std::string encrypt, recovered;
-
- CryptoPP::HKDF<CryptoPP::SHA256> hkdf;
-
- byte iv2[CryptoPP::AES::BLOCKSIZE];
-
- void Renew_Key(CryptoPP::SecByteBlock &key);
 
 public:
  Encode_String();

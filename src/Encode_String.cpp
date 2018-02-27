@@ -8,6 +8,7 @@
 
 Encode_String::Encode_String() {}
 
+//The old way to encrypt stuff
 std::string Encode_String::String_To_Hex(const std::string &s) {
  std::ostringstream ret;
 
@@ -20,7 +21,7 @@ std::string Encode_String::String_To_Hex(const std::string &s) {
  return ret.str();
 }
 
-
+//The old way to decrypt stuff...
 std::string Encode_String::Hex_To_String(const std::string &in) {
  std::string newstring;
 
@@ -33,30 +34,27 @@ std::string Encode_String::Hex_To_String(const std::string &in) {
  return newstring;
 }
 
-void Encode_String::Renew_Key(CryptoPP::SecByteBlock &key) {
-
-}
-
+//Encrypts any form of string...
 std::string Encode_String::Encrypt_AES(const std::string &s) {
  CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH + CryptoPP::AES::BLOCKSIZE);
  encrypt = "";
- iv = "518040600518040600";
-
+ iv = pass + pass;
  CryptoPP::HKDF<CryptoPP::SHA256> hkdf;
  CryptoPP::CTR_Mode<CryptoPP::AES>::Encryption e;
 
  hkdf.DeriveKey(key, key.size(), (const byte*)pass.data(), pass.size(), (const byte*)iv.data(), iv.size(), NULL, 0);
  e.SetKeyWithIV(key, CryptoPP::AES::MAX_KEYLENGTH, key + CryptoPP::AES::MAX_KEYLENGTH);
  CryptoPP::StringSource encry(s, true, new CryptoPP::StreamTransformationFilter(e, new CryptoPP::StringSink(encrypt)));
-
+ 
  return encrypt;
 }
 
+//Decrypts any string 
 std::string Encode_String::Decrypt_AES(const std::string &s) {
  recovered = "";
  CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH + CryptoPP::AES::BLOCKSIZE);
- iv = "518040600518040600";
-
+ iv = pass + pass;
+ CryptoPP::HKDF<CryptoPP::SHA256> hkdf;
  CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption decryption;
  
  hkdf.DeriveKey(key, key.size(), (const byte*)pass.data(), pass.size(), (const byte*)iv.data(), iv.size(), NULL, 0);
@@ -66,6 +64,8 @@ std::string Encode_String::Decrypt_AES(const std::string &s) {
  return recovered;
 }
 
+//encrypts a file, specifically an image, but can be used for any file.
+//Should probably change this name...
 std::string Encode_String::Encrypt_AES_Image(const std::string &s) {
 
  std::string fExtension = s;
@@ -78,6 +78,8 @@ std::string Encode_String::Encrypt_AES_Image(const std::string &s) {
  return endpath;
 }
 
+//Decrypts a file
+//Should probably change this name too.
 std::string Encode_String::Decrypt_AES_Image(const std::string &s) {
  std::string c = "";
  

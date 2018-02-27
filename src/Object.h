@@ -6,7 +6,6 @@
 class Object {
 public:
  Object();
- ~Object();
 
  New_Obj_Login *traverse;
  New_Obj_Login *root;

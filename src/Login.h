@@ -8,7 +8,7 @@ private:
  size_t pass;
  std::string userCheck;
  std::string passCheck;
- std::string acceptedStrings = "Â§1234567890+Â´qwertyuiopÃ¥Ã¤sdfghjklÃ¶Ã¤'<zxcvbnm,.-Â½!()=?QWERTYUIOPÃ…ASDFGHJKLÃ–Ã„*>ZXCVBNM;:_@Â£$â‚¬{[]}\\|Â¨ ";
+ std::string acceptedStrings = "§1234567890+´qwertyuiopåäsdfghjklöä'<zxcvbnm,.-½!()=?QWERTYUIOPÅASDFGHJKLÖÄ*>ZXCVBNM;:_@£$€{[]}\\|¨ ";
  int tryCounter = 0;
 public:
  void Enter_Credentials();

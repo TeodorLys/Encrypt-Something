@@ -11,11 +11,6 @@ bool Object::File_Exists(const std::string name) {
  return(stat(name.c_str(), &Buffer) == 0);
 }
 
-Object::~Object() {
- //delete root;
- //delete traverse;
-}
-
 Object::Object() {
  root = new New_Obj_Login;
  root->next = nullptr;
@@ -28,6 +23,7 @@ Object::Object() {
  Img_traverse = Img_root;
 }
 
+//Adds an existing object(from save file) into the linked list.
 void Object::Insert_Login_Object(std::string c, std::string user, std::string passw) {
  traverse->next = new New_Obj_Login;
  traverse->comment = c;
@@ -38,6 +34,7 @@ void Object::Insert_Login_Object(std::string c, std::string user, std::string pa
  traverse->next = nullptr;
 }
 
+//Creates a new object in the linked list(by User).
 void Object::New_Login_Object() {
  std::string com;
  std::string us;
@@ -58,18 +55,18 @@ void Object::New_Login_Object() {
  traverse->next = nullptr;
 }
 
+//Adds an existing object(from save file) into the linked list.
 void Object::Insert_Image_Object(std::string path, std::string comment, std::string ep) {
- //printf("Did it?\n");
  Img_traverse->next = new New_Obj_Image;
  Img_traverse->comment = comment;
  Img_traverse->pathName = path;
- //printf("%i\n", current_Image_Index);
  Img_traverse->index = current_Image_Index;
  Img_traverse->encrypt_Path = ep;
  Img_traverse = Img_traverse->next;
  Img_traverse->next = nullptr;
 }
 
+//Request the user to enter a path to the wanted image.
 void Get_Path(std::string *path) {
  
  printf("Add Path: ");
@@ -108,26 +105,32 @@ void Object::New_Image_Object() {
 void Object::Delete_Login_Object_By_Latest() {
  New_Obj_Login *nbegin = root;
 
- while (nbegin->next->next != nullptr) {
+ while (nbegin->next->next != nullptr)
   nbegin = nbegin->next;
- }
 
  nbegin->next = nullptr;
 }
 
-
+//Deletes the object with the specifik index.
+//TODO: Might be some memory leaks in this...
 void Object::Delete_Login_Object_By_Index(int i) {
  New_Obj_Login *nbegin = root;
  New_Obj_Login *prev = root;
- New_Obj_Login *RenewIndex = root;
+ New_Obj_Login *RenewIndex = root;  //Used for Reorganizing the object indexes
  bool found = false;
  while (nbegin->next != nullptr) {
   prev = nbegin;
   nbegin = nbegin->next;
+  //Looking for the right index
   if (nbegin->index == i) {
    found = true;
    break;
   }
+ }
+
+ if (!found) {
+  printf("Could not find object with index %i.\n", i);
+  return;
  }
 
  std::string in;
@@ -137,6 +140,7 @@ void Object::Delete_Login_Object_By_Index(int i) {
  printf("(Y/N): ");
  std::getline(std::cin, in);
 
+ //Makes the user input to a lower case, so i dont need to accommodate for lower and upper case
  std::transform(in.begin(), in.end(), in.begin(), ::tolower);
 
  if (found && in.find("y") != std::string::npos) {
@@ -148,31 +152,26 @@ void Object::Delete_Login_Object_By_Index(int i) {
    RenewIndex = RenewIndex->next;
    newIndex++;
   }
-
  }
 }
 
 void Object::Delete_Image_Object_By_Latest() {
  New_Obj_Image *nbegin = Img_root;
- if (current_Image_Index != 0) {
-  while (nbegin->next->next != nullptr/* || nbegin->next != nullptr*/) {
+ if (current_Image_Index != 0) 
+  while (nbegin->next->next != nullptr)
    nbegin = nbegin->next;
-  }
- }
- else {
-  Error_Handler::Call_Error(LAST_INDEX, "Delete_Image_Objects_By_Latest");
- }
+ else 
+  Error_Handler::Call_Error(LAST_INDEX, __FUNCTION__);
 
  std::string p = Shared_String::current_Path;
+ p += nbegin->encrypt_Path;  //Gets the path for the img object file
+ DeleteFile(p.c_str());  //Deletes the img object file
 
- p += nbegin->encrypt_Path;
-
- DeleteFile(p.c_str());
  nbegin->next = nullptr;
-
  current_Image_Index--;
 }
 
+//Prints all of the object in both login and image.
 void Object::Get_Objects() {
 
  New_Obj_Login *nBegin = root;

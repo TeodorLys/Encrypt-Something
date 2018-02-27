@@ -12,14 +12,16 @@ File_Handler::~File_Handler() {
 }
 
 void File_Handler::Parse_Information() {
- std::string login;
- std::string image;
- New_Obj_Login *nbegin = Object::obj().root;
- New_Obj_Image *ibegin = Object::obj().Img_root;
+ std::string login;  //All of the "login" information to save to the encrypted file
+ std::string image;  //All of the encrypted images to save to file.
+ New_Obj_Login *nbegin = Object::obj().root;  //Linked list iterator
+ New_Obj_Image *ibegin = Object::obj().Img_root; //Linked list iterator
  file.open(Shared_String::save_File_Name, std::fstream::out | std::fstream::binary);
 
+ //Tells the program(when reading) what objects are being read.
  login = Encode_String::es().Encrypt_AES("NEW_LOGIN_OBJECTS BEGIN:") + "\n";
 
+ //Gives the object content identifiers so the program can know what to assign
  while (nbegin->next != nullptr) {
   login += Encode_String::es().Encrypt_AES("i:" + std::to_string(nbegin->index)) + "\n";
   login += Encode_String::es().Encrypt_AES("c:" + nbegin->comment) + "\n";
@@ -53,7 +55,7 @@ void File_Handler::Parse_Information() {
 
  std::string nsfn = Shared_String::current_Path + "\\~6CMH-YQBQ-DP1M-SCI7.END";
 
- DeleteFile(nsfn.c_str());
+ DeleteFile(nsfn.c_str());  //If everything goes as planed, it will delete the backup
 }
 
 void File_Handler::Get_Information() {
@@ -80,7 +82,6 @@ void File_Handler::Get_Information() {
 
  for (std::string sb; std::getline(file, sb);) {
   s = Encode_String::es().Decrypt_AES(sb.c_str());
-
   if (login_Object) {   
    if(s[0] == 'i' && s[1] == ':'){
 	sbuff = s;
@@ -108,12 +109,10 @@ void File_Handler::Get_Information() {
    }
   }
   else if (image_Object) {
-   //printf("%s\n", s.c_str());
    if (s[0] == 'i' && s[1] == ':') {
 	sbuff = s;
 	sbuff.erase(0, 2);
 	ibuff.index = myio::stoiEX(sbuff);
-	//printf("%i, %s\n", myio::stoiEX(sbuff), sbuff.c_str());
 	img_indexfound = true;
    }
    else if (s[0] == 'c' && s[1] == ':') {
@@ -156,9 +155,7 @@ void File_Handler::Get_Information() {
    passfound = false;
   }
   else if (img_commentfound && img_indexfound && img_pathfound && img_Encryptfound) {
-   //printf("All found\n");
    Object::obj().current_Image_Index = ibuff.index;
-   //printf("%i\n", Object::obj().current_Image_Index);
    Object::obj().Insert_Image_Object(ibuff.pathName, ibuff.comment, ibuff.encrypt_Path);
    img_commentfound = false;
    img_indexfound = false;

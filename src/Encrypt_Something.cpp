@@ -27,7 +27,7 @@ bool Check_Cred;
 BOOL WINAPI ConsoleHandlerRoutine(DWORD dwCtrlType) {
  if (CTRL_CLOSE_EVENT == dwCtrlType) {
   if(Check_Cred)
-  fh.Parse_Information();
+  fh.Parse_Information(); //Saves any new objects
   return true;
  }
  return false;
@@ -74,16 +74,19 @@ std::string input;
   so.Search_Phrase_Index(myio::stoiEX(input));
  }
  else if (input[0] == 'o' && input[1] == 'p' && input[2] == 'e' &&input[3] == 'n') {
+ /*Tries to open the requested image*/
   std::string sbuff = input;
   sbuff.erase(0, 5);
   if (myio::_Char_to_Int(sbuff[0]) == -1) Error_Handler::Call_Error(INVALID_INPUT_NUM_ARGUMENT, sbuff);
   else {
    std::string cbuff;
+//First checks if it actually exists...
    New_Obj_Image *noiBuff = so.Search_Open_Image_Index(myio::stoiEX(sbuff));
    if (noiBuff != nullptr) {
 	cbuff = noiBuff->encrypt_Path;
 	cbuff = Shared_String::current_Path + cbuff;
 	if (cbuff != "-1")
+//Calls a sfml context to display the found image.
 	 id.Open_Image_Viewer(Encode_String::es().Decrypt_AES_Image(cbuff));
 	cbuff.empty();
    }
@@ -109,8 +112,9 @@ std::string input;
 }
 
 int main(int argc, char** argv) {
- Set_Log_Print_Level(LOG_LEVEL_ERROR);
+ Set_Log_Print_Level(LOG_LEVEL_ERROR);  //Only display error messages
 
+ //Gives me access to the windows console "Destructor"
  if (FALSE == SetConsoleCtrlHandler(ConsoleHandlerRoutine, TRUE))
   Log_Error("Could not register Routine %i", GetLastError());
 
@@ -122,11 +126,18 @@ int main(int argc, char** argv) {
  Shared_String::save_File_Name = Shared_String::current_Path + "\\6CMH-YQBQ-DP1M-SCI7.END";
  Shared_String::current_Path += "\\";
 
+ //Checks if a user is registered
+/*
+ The user authentication works through trying to decrypt the
+ USER file with the password, and if it is successfull, 
+ the saved(in USER file) password hash will be compared 
+ to the saved password hash
+*/
  if (!Object::obj().File_Exists(Shared_String::current_Path + "USER1.usr")) {
-  user.New_User();
+  user.New_User(); //Creates a file, and saves the credentials to a file(Encrypted...)
  }
  else {
-  user.Get_User();
+  user.Get_User(); //Opens the user file and loads it into memory(Encrypted...)
  }
 
  printf("***LOGIN***\n");
