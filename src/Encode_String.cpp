@@ -5,8 +5,18 @@
 #include <iomanip>
 #include <files.h>
 #include <default.h>
+#include <SFML\System\Thread.hpp>
 
 Encode_String::Encode_String() {}
+int ab = 0;
+
+void thread_Test() {
+ while (Encode_String::es().test > 0) {
+  if(ab != Encode_String::es().test)
+   printf("%i\n", Encode_String::es().test);
+  ab = Encode_String::es().test;
+ }
+}
 
 //The old way to encrypt stuff
 std::string Encode_String::String_To_Hex(const std::string &s) {
@@ -64,6 +74,34 @@ std::string Encode_String::Decrypt_AES(const std::string &s) {
  return recovered;
 }
 
+std::string Encode_String::Encrypt_AES_String_By_Given_Password(std::string &s, const std::string &pw) {
+ CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH + CryptoPP::AES::BLOCKSIZE);
+ encrypt = "";
+ iv = pw + pw;
+ CryptoPP::HKDF<CryptoPP::SHA256> hkdf;
+ CryptoPP::CTR_Mode<CryptoPP::AES>::Encryption e;
+
+ hkdf.DeriveKey(key, key.size(), (const byte*)pw.data(), pw.size(), (const byte*)iv.data(), iv.size(), NULL, 0);
+ e.SetKeyWithIV(key, CryptoPP::AES::MAX_KEYLENGTH, key + CryptoPP::AES::MAX_KEYLENGTH);
+ CryptoPP::StringSource encry(s.c_str(), true, new CryptoPP::StreamTransformationFilter(e, new CryptoPP::StringSink(encrypt)));
+
+ return encrypt;
+}
+
+std::string Encode_String::Decrypt_AES_String_By_Given_Password(std::string &s, const std::string &pw) {
+ recovered = "";
+ CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH + CryptoPP::AES::BLOCKSIZE);
+ iv = pw + pw;
+ CryptoPP::HKDF<CryptoPP::SHA256> hkdf;
+ CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption decryption;
+
+ hkdf.DeriveKey(key, key.size(), (const byte*)pw.data(), pw.size(), (const byte*)iv.data(), iv.size(), NULL, 0);
+ decryption.SetKeyWithIV(key, CryptoPP::AES::MAX_KEYLENGTH, key + CryptoPP::AES::MAX_KEYLENGTH);
+ CryptoPP::StringSource decrypt(s.c_str(), true, new CryptoPP::StreamTransformationFilter(decryption, new CryptoPP::StringSink(recovered)));
+
+ return recovered;
+}
+
 //encrypts a file, specifically an image, but can be used for any file.
 //Should probably change this name...
 std::string Encode_String::Encrypt_AES_Image(const std::string &s) {
@@ -86,4 +124,31 @@ std::string Encode_String::Decrypt_AES_Image(const std::string &s) {
  CryptoPP::FileSource fc(s.c_str(), true, new CryptoPP::DefaultDecryptor(pass.c_str(), new CryptoPP::StringSink(c)));
 
  return c;
+}
+
+
+void Encode_String::Decrypt_AES_File_By_Given_Password(std::string s, const std::string &pw) {
+ std::string p = s + "_Encrypted";
+ sf::Thread t(thread_Test);
+
+ t.launch();
+
+ CryptoPP::FileSink *fsink = new CryptoPP::FileSink(p.c_str());
+ fsink->count = &test;
+ CryptoPP::FileSource fc(s.c_str(), true, new CryptoPP::DefaultDecryptor(pw.c_str(), fsink));
+
+ t.terminate();
+}
+
+void Encode_String::Encrypt_AES_File_By_Given_Password(std::string s, const std::string &pw) {
+ std::string p = s + "_Encrypted";
+ sf::Thread t(thread_Test);
+
+ t.launch();
+
+ CryptoPP::FileSink *fsink = new CryptoPP::FileSink(p.c_str());
+ fsink->count = &test;
+ CryptoPP::FileSource f(s.c_str(), true, new CryptoPP::DefaultEncryptor(pw.c_str(), fsink));
+
+ t.terminate();
 }

@@ -9,6 +9,9 @@
 #include <Filter.h>
 
 class Encode_String {
+public:
+ int test = 1;
+
 private:
  std::string pass, iv;
  std::string encrypt, recovered;
@@ -27,9 +30,14 @@ public:
  std::string Decrypt_AES(const std::string &s);
  std::string Encrypt_AES_Image(const std::string &s);
  std::string Decrypt_AES_Image(const std::string &s);
+ void Encrypt_AES_File_By_Given_Password(std::string s, const std::string &pw);
+ void Decrypt_AES_File_By_Given_Password(std::string s, const std::string &pw);
+ std::string Encrypt_AES_String_By_Given_Password(std::string &s, const std::string &pw);
+ std::string Decrypt_AES_String_By_Given_Password(std::string &s, const std::string &pw);
  void set_Pass(const std::string &s) {
   pass = s;
  }
+
 
 };
 

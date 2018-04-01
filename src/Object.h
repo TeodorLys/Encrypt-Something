@@ -30,6 +30,5 @@ public:
  bool File_Exists(const std::string name);
  int current_Login_Index = 0;
  int current_Image_Index = 0;
-
 };
 

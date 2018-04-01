@@ -33,7 +33,7 @@ void Login::Enter_Credentials() {
    printf(" ");
    printf("\b");
    end.pop_back();
-   _getch();   //Used as sort of a debouncer... probably not needed.
+   _getch();   //Used as sort of a debouncer.
   }
  }
  
