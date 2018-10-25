@@ -1,3 +1,4 @@
+//2017-011-20 21:05, Currently: 1272 lines of code
 #include "Login.h"
 #include "Object.h"
 #include "File_Handler.h"
@@ -8,6 +9,7 @@
 #include "Error_Handler.h"
 #include "Shared_String.h"
 #include "Users.h"
+#include "One_Time_Run.h"
 #include <stdio.h>
 #include <vector>
 #include <iostream>
@@ -21,6 +23,7 @@ File_Handler fh;
 Search_Objects so;
 Image_Display id;
 Users user;
+One_Time_Run otr;
 
 bool Check_Cred;
 
@@ -114,12 +117,23 @@ std::string input;
 int main(int argc, char** argv) {
  Set_Log_Print_Level(LOG_LEVEL_ERROR);  //Only display error messages
 
+ if (argc > 1) {
+  otr.Set_Public(true);
+  otr.Parse_String(argc, argv);
+  otr.Encrypt_Given_Item();
+  exit(0);
+}
+ 
+
  //Gives me access to the windows console "Destructor"
- if (FALSE == SetConsoleCtrlHandler(ConsoleHandlerRoutine, TRUE))
+ if (FALSE == SetConsoleCtrlHandler(ConsoleHandlerRoutine, TRUE)) {
   Log_Error("Could not register Routine %i", GetLastError());
+  std::cin.get();
+  return -1;
+ }
 
  Shared_String::current_Path = argv[0];
-
+ 
 
  Shared_String::current_Path.erase(Shared_String::current_Path.find_last_of("\\"), Shared_String::current_Path.length());
 
@@ -135,6 +149,7 @@ int main(int argc, char** argv) {
 */
  if (!Object::obj().File_Exists(Shared_String::current_Path + "USER1.usr")) {
   user.New_User(); //Creates a file, and saves the credentials to a file(Encrypted...)
+  user.Get_User();
  }
  else {
   user.Get_User(); //Opens the user file and loads it into memory(Encrypted...)
@@ -157,9 +172,8 @@ int main(int argc, char** argv) {
  DWORD attrib = GetFileAttributes(nsfn.c_str());
  SetFileAttributes(nsfn.c_str(), attrib | FILE_ATTRIBUTE_HIDDEN);
 
-
  fh.Get_Information();
-
+ 
  Get_Input();
 
  fh.Parse_Information();
